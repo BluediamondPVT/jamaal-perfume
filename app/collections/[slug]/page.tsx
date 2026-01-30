@@ -1,50 +1,54 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { notFound } from "next/navigation";
 
 const prisma = new PrismaClient();
 
+interface SearchParams {
+    sort?: string;
+    minPrice?: string;
+    maxPrice?: string;
+}
+
 interface PageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
-    searchParams: {
-        sort?: string;
-        minPrice?: string;
-        maxPrice?: string;
-    };
+    }>;
+    searchParams: Promise<SearchParams>;
 }
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'newest';
 
-function getSortOrder(sort: SortOption): Prisma.ProductOrderByWithRelationInput {
+function getSortOrder(sort: SortOption) {
     switch (sort) {
         case 'price-asc':
-            return { price: 'asc' };
+            return { price: 'asc' as const };
         case 'price-desc':
-            return { price: 'desc' };
+            return { price: 'desc' as const };
         case 'newest':
-            return { createdAt: 'desc' };
+            return { createdAt: 'desc' as const };
         case 'featured':
         default:
-            return { isFeatured: 'desc' };
+            return { isFeatured: 'desc' as const };
     }
 }
 
-async function getProducts(slug: string, searchParams: PageProps['searchParams']) {
+async function getProducts(slug: string, searchParams: SearchParams) {
     const sort = (searchParams.sort as SortOption) || 'featured';
     const minPrice = searchParams.minPrice ? parseFloat(searchParams.minPrice) : undefined;
     const maxPrice = searchParams.maxPrice ? parseFloat(searchParams.maxPrice) : undefined;
 
-    const priceFilter: Prisma.ProductWhereInput = {};
-    if (minPrice !== undefined) priceFilter.price = { ...priceFilter.price as object, gte: minPrice };
-    if (maxPrice !== undefined) priceFilter.price = { ...priceFilter.price as object, lte: maxPrice };
+    const priceFilter: { gte?: number; lte?: number } = {};
+    if (minPrice !== undefined) priceFilter.gte = minPrice;
+    if (maxPrice !== undefined) priceFilter.lte = maxPrice;
+
+    const priceWhere = Object.keys(priceFilter).length > 0 ? { price: priceFilter } : {};
 
     if (slug === 'all') {
         return {
             products: await prisma.product.findMany({
-                where: { stock: { gt: 0 }, ...priceFilter },
+                where: { stock: { gt: 0 }, ...priceWhere },
                 include: { category: true },
                 orderBy: getSortOrder(sort)
             }),
@@ -63,7 +67,7 @@ async function getProducts(slug: string, searchParams: PageProps['searchParams']
         where: {
             categoryId: category.id,
             stock: { gt: 0 },
-            ...priceFilter
+            ...priceWhere
         },
         include: { category: true },
         orderBy: getSortOrder(sort)
@@ -76,8 +80,9 @@ async function getProducts(slug: string, searchParams: PageProps['searchParams']
     };
 }
 
-export default async function CollectionPage({ params, searchParams }: PageProps) {
-    const slug = params.slug;
+export default async function CollectionPage(props: PageProps) {
+    const { slug } = await props.params;
+    const searchParams = await props.searchParams;
     const data = await getProducts(slug, searchParams);
 
     if (!data) return notFound();

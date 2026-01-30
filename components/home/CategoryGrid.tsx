@@ -5,19 +5,19 @@ const categories = [
     {
         name: "Luxury Attars",
         slug: "attar",
-        image: "https://images.unsplash.com/photo-1594035910387-fea4779426e9?q=80&w=800&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&auto=format&fit=crop",
         size: "large"
     },
     {
         name: "Perfume Sprays",
         slug: "perfume-spray",
-        image: "https://images.unsplash.com/photo-1523293188086-b43e5456334d?q=80&w=800&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?q=80&w=800&auto=format&fit=crop",
         size: "small"
     },
     {
         name: "Bakhoor",
         slug: "bakhoor",
-        image: "https://images.unsplash.com/photo-1519702755255-a28cb7e40620?q=80&w=800&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1595425964071-2c1ecb10b52e?q=80&w=800&auto=format&fit=crop",
         size: "small"
     },
 ];

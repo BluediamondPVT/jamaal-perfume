@@ -8,7 +8,7 @@ export function Hero() {
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
                 style={{
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1547887538-e6a2d699e196?q=80&w=2600&auto=format&fit=crop")', // Premium perfume background
+                    backgroundImage: 'url("https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2600&auto=format&fit=crop")', // Premium perfume background
                 }}
             >
                 <div className="absolute inset-0 bg-black/40" /> {/* Overlay */}

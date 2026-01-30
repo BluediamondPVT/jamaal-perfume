@@ -6,9 +6,9 @@ import { ProductCarousel } from "@/components/home/ProductCarousel";
 const prisma = new PrismaClient();
 
 interface PageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 async function getProduct(slug: string) {
@@ -30,7 +30,7 @@ async function getRelatedProducts(categoryId: string, currentProductId: string) 
 }
 
 export default async function ProductPage(props: PageProps) {
-    const slug = props.params.slug;
+    const { slug } = await props.params;
     const product = await getProduct(slug);
 
     if (!product) return notFound();

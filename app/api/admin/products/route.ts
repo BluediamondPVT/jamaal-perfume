@@ -37,13 +37,44 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
     try {
+        // Get products with category info
         const products = await prisma.product.findMany({
-            include: { category: true },
+            include: {
+                category: true,
+                orderItems: {
+                    select: {
+                        quantity: true,
+                        price: true,
+                    },
+                },
+            },
             orderBy: { createdAt: "desc" },
         });
 
-        return NextResponse.json(products);
+        // Calculate analytics for each product
+        const productsWithAnalytics = products.map((product) => {
+            const totalSold = product.orderItems.reduce(
+                (sum, item) => sum + item.quantity, 0
+            );
+            const totalRevenue = product.orderItems.reduce(
+                (sum, item) => sum + (item.price * item.quantity), 0
+            );
+
+            // Remove orderItems from response, keep only analytics
+            const { orderItems, ...productData } = product;
+
+            return {
+                ...productData,
+                analytics: {
+                    totalSold,
+                    totalRevenue: Math.round(totalRevenue * 100) / 100,
+                },
+            };
+        });
+
+        return NextResponse.json(productsWithAnalytics);
     } catch (error) {
+        console.error("Products fetch error:", error);
         return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
     }
 }

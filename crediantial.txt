@@ -1,0 +1,5 @@
+postgras
+jamal fragrance
+pKuFxF4!Hz_/kSt
+
+postgresql://postgres:pKuFxF4!Hz_/kSt@db.qqitdrcxhgupnmrrajkd.supabase.co:5432/postgres

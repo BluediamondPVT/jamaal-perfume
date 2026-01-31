@@ -15,6 +15,7 @@ interface Product {
     name: string;
     slug: string;
     price: number;
+    discount?: number;
     images: string; // JSON string
     category: { name: string };
 }
@@ -73,7 +74,23 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
                                                             {product.name}
                                                         </h3>
                                                     </Link>
-                                                    <p className="font-body font-medium">₹{product.price.toLocaleString()}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        {product.discount && product.discount > 0 ? (
+                                                            <>
+                                                                <p className="font-body font-medium text-green-600">
+                                                                    ₹{(product.price - (product.price * product.discount) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                                </p>
+                                                                <p className="text-sm line-through text-muted-foreground">
+                                                                    ₹{product.price.toLocaleString()}
+                                                                </p>
+                                                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold">
+                                                                    -{product.discount}%
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <p className="font-body font-medium">₹{product.price.toLocaleString()}</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </CardContent>
                                         </Card>

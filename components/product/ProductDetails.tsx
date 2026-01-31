@@ -18,6 +18,7 @@ interface ProductDetailsProps {
         name: string;
         description: string;
         price: number;
+        discount?: number;
         images: string; // JSON
         variants: string | null; // JSON
         stock: number;
@@ -86,7 +87,23 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 </h1>
 
                 <div className="flex items-center gap-4 mb-6">
-                    <p className="text-2xl font-medium font-body">₹{product.price.toLocaleString()}</p>
+                    <div className="flex items-center gap-3">
+                        {product.discount && product.discount > 0 ? (
+                            <>
+                                <p className="text-2xl font-medium font-body text-green-600">
+                                    ₹{(product.price - (product.price * product.discount) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                </p>
+                                <p className="text-lg line-through text-muted-foreground">
+                                    ₹{product.price.toLocaleString()}
+                                </p>
+                                <span className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded-full font-semibold">
+                                    -{product.discount}%
+                                </span>
+                            </>
+                        ) : (
+                            <p className="text-2xl font-medium font-body">₹{product.price.toLocaleString()}</p>
+                        )}
+                    </div>
                     <div className="flex items-center gap-1 text-yellow-500">
                         <Star className="h-4 w-4 fill-current" />
                         <span className="text-sm font-medium text-muted-foreground mr-1">4.8</span>

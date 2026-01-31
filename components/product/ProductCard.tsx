@@ -10,6 +10,7 @@ interface ProductCardProps {
         name: string;
         slug: string;
         price: number;
+        discount?: number;
         images: string; // JSON String
         category: { name: string };
     };
@@ -57,7 +58,20 @@ export function ProductCard({ product }: ProductCardProps) {
                 </div>
 
                 <div className="mt-2 flex items-center justify-between">
-                    <p className="font-body font-medium">₹{product.price.toLocaleString()}</p>
+                    <div className="flex items-center gap-2">
+                        {product.discount && product.discount > 0 ? (
+                            <>
+                                <p className="font-body font-medium text-green-600">
+                                    ₹{(product.price - (product.price * product.discount) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                </p>
+                                <p className="text-sm line-through text-muted-foreground">
+                                    ₹{product.price.toLocaleString()}
+                                </p>
+                            </>
+                        ) : (
+                            <p className="font-body font-medium">₹{product.price.toLocaleString()}</p>
+                        )}
+                    </div>
                     <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full border border-input hover:bg-primary hover:text-primary-foreground transition-colors">
                         <Plus className="h-4 w-4" />
                     </Button>

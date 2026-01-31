@@ -38,10 +38,12 @@ model Product {
   name        String
   slug        String   @unique
   description String
-  price       Float    // Changed to Float for SQLite
+  price       Float    // Original price
+  discount    Float?   @default(0) // Discount percentage (0-100)
   stock       Int      @default(0)
   images      String   // Changed to String (comma separated or JSON) because SQLite doesn't support String[]
   isFeatured  Boolean  @default(false)
+  isBestSeller Boolean  @default(false) // New: Mark as Best Seller
   
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])

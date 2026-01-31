@@ -4,9 +4,11 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       'wmit-news-prod.s3.amazonaws.com',
-      'qqitdrcxhgupnmrrajkd.supabase.co', // Supabase storage
-      'localhost', // Local dev
-      'res.cloudinary.com' // CDN
+      'qqitdrcxhgupnmrrajkd.supabase.co',
+      'localhost',
+      'res.cloudinary.com',
+      'images.unsplash.com',
+      'plus.unsplash.com'
     ],
     remotePatterns: [
       {
@@ -36,3 +38,5 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+

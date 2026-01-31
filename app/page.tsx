@@ -14,6 +14,14 @@ async function getFeaturedProducts() {
   });
 }
 
+async function getBestSellerProducts() {
+  return await prisma.product.findMany({
+    where: { isBestSeller: true },
+    include: { category: true },
+    take: 8,
+  });
+}
+
 async function getNewArrivals() {
   return await prisma.product.findMany({
     orderBy: { createdAt: 'desc' },
@@ -24,6 +32,7 @@ async function getNewArrivals() {
 
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts();
+  const bestSellerProducts = await getBestSellerProducts();
   const newArrivals = await getNewArrivals();
 
   return (
@@ -32,19 +41,34 @@ export default async function Home() {
       <TrustBadges />
       <CategoryGrid />
 
-      <ProductCarousel
-        title="Best Sellers"
-        products={featuredProducts.map(p => ({
-          ...p,
-          price: Number(p.price) // Ensure price is number for serialization if needed, though SQLite float is mostly number
-        }))}
-      />
+      {bestSellerProducts.length > 0 && (
+        <ProductCarousel
+          title="Best Sellers"
+          products={bestSellerProducts.map(p => ({
+            ...p,
+            price: Number(p.price),
+            discount: p.discount || 0
+          }))}
+        />
+      )}
+
+      {featuredProducts.length > 0 && (
+        <ProductCarousel
+          title="Featured Products"
+          products={featuredProducts.map(p => ({
+            ...p,
+            price: Number(p.price),
+            discount: p.discount || 0
+          }))}
+        />
+      )}
 
       <ProductCarousel
         title="New Arrivals"
         products={newArrivals.map(p => ({
           ...p,
-          price: Number(p.price)
+          price: Number(p.price),
+          discount: p.discount || 0
         }))}
       />
     </div>

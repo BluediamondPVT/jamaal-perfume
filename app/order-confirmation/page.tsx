@@ -3,15 +3,16 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Package, ArrowRight } from "lucide-react";
 
 interface PageProps {
-    searchParams: {
+    searchParams: Promise<{
         orderId?: string;
         demo?: string;
-    };
+    }>;
 }
 
-export default function OrderConfirmationPage({ searchParams }: PageProps) {
-    const orderId = searchParams.orderId || "DEMO-ORDER";
-    const isDemo = searchParams.demo === "true";
+export default async function OrderConfirmationPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+    const orderId = params.orderId || "DEMO-ORDER";
+    const isDemo = params.demo === "true";
 
     return (
         <div className="container mx-auto px-4 py-24 text-center">

@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    const { orderId } = await params;
     const { userId } = await auth();
 
     if (!userId) {
@@ -47,7 +48,7 @@ export async function PATCH(
     }
 
     const order = await prisma.order.update({
-      where: { id: params.orderId },
+      where: { id: orderId },
       data: {
         status,
         ...(estimatedDeliveryDate && {
@@ -76,15 +77,16 @@ export async function PATCH(
 
 export async function GET(
   req: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    const { orderId } = await params;
     // Try to find order by both internal ID and Razorpay order ID
     const order = await prisma.order.findFirst({
       where: {
         OR: [
-          { id: params.orderId },
-          { razorpayOrderId: params.orderId }
+          { id: orderId },
+          { razorpayOrderId: orderId }
         ]
       },
       include: {

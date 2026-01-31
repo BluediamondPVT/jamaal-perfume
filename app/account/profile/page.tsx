@@ -180,7 +180,7 @@ export default function UserProfilePage() {
                   <div>
                     <p className="text-gray-600">Member Since</p>
                     <p className="font-semibold text-gray-900">
-                      {user.createdAt ? formatDate(user.createdAt) : "N/A"}
+                      {user.createdAt ? formatDate(user.createdAt.toISOString()) : "N/A"}
                     </p>
                   </div>
                 </div>

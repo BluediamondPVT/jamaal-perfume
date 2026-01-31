@@ -38,8 +38,8 @@ export const metadata: Metadata = {
 };
 
 import { ClerkProvider } from "@clerk/nextjs";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { LayoutWrapper, FooterWrapper } from "@/components/layout/LayoutWrapper";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export default function RootLayout({
   children,
@@ -52,11 +52,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${outfit.variable} antialiased font-sans flex flex-col min-h-screen`}
         >
-          <Header />
+          <ToastProvider />
+          <LayoutWrapper />
           <main className="flex-grow">
             {children}
           </main>
-          <Footer />
+          <FooterWrapper />
         </body>
       </html>
     </ClerkProvider>

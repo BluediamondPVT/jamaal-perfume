@@ -50,11 +50,13 @@ export default async function CategoriesPage() {
                             <tr key={category.id} className="border-t hover:bg-gray-50">
                                 <td className="p-4 font-medium">{category.name}</td>
                                 <td className="p-4">{category.slug}</td>
-                                <td className="p-4 max-w-md">
-                                    {category.description || <span className="text-gray-500">No description</span>}
+                                <td className="p-4 text-gray-700">
+                                    <div className="line-clamp-2 text-sm">
+                                        {category.description || <span className="text-gray-400">No description</span>}
+                                    </div>
                                 </td>
                                 <td className="p-4 text-right">
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 justify-end">
                                         <Link href={`/admin/categories/${category.id}`}>
                                             <Button size="icon" variant="ghost" className="cursor-pointer hover:bg-blue-50">
                                                 <Pencil className="h-4 w-4" />

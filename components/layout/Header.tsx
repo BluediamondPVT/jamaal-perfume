@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { ShoppingBag, Search, Menu, X } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, User } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,11 @@ export function Header() {
                     </Button>
 
                     <SignedIn>
+                        <Link href="/account/profile" title="Profile">
+                            <Button variant="ghost" size="icon">
+                                <User className="h-5 w-5" />
+                            </Button>
+                        </Link>
                         <UserButton afterSignOutUrl="/" />
                     </SignedIn>
                     <SignedOut>

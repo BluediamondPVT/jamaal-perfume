@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 const sidebarLinks = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Products", href: "/admin/products", icon: Package },
-    { name: "**Categories**", href: "/admin/categories", icon: Tag },     // 🔥 NEW!
+    { name: "Categories", href: "/admin/categories", icon: Tag },     // 🔥 NEW!
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Settings", href: "/admin/settings", icon: Settings },

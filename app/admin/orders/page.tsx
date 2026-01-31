@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
+import Link from "next/link";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,7 @@ async function getOrders() {
             items: {
                 include: { product: true },
             },
+            user: true,
         },
         orderBy: { createdAt: "desc" },
     });
@@ -18,8 +20,9 @@ async function getOrders() {
 
 const statusColors: Record<string, string> = {
     PENDING: "bg-yellow-100 text-yellow-800",
-    PROCESSING: "bg-blue-100 text-blue-800",
-    SHIPPED: "bg-purple-100 text-purple-800",
+    CONFIRMED: "bg-blue-100 text-blue-800",
+    PROCESSING: "bg-purple-100 text-purple-800",
+    ON_THE_WAY: "bg-indigo-100 text-indigo-800",
     DELIVERED: "bg-green-100 text-green-800",
     CANCELLED: "bg-red-100 text-red-800",
 };
@@ -66,9 +69,11 @@ export default async function AdminOrdersPage() {
                                         </Badge>
                                     </td>
                                     <td className="p-4 text-right">
-                                        <Button size="icon" variant="ghost">
-                                            <Eye className="h-4 w-4" />
-                                        </Button>
+                                        <Link href={`/admin/orders/${order.id}`}>
+                                            <Button size="icon" variant="ghost">
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </Link>
                                     </td>
                                 </tr>
                             );

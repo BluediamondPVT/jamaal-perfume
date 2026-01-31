@@ -15,6 +15,7 @@ model User {
   email     String   @unique
   name      String?
   role      String   @default("USER") // Using String for SQLite compatibility
+  wishlist  String   @default("[]") // Storing wishlist product IDs as JSON string
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -59,20 +60,21 @@ model Product {
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  userId        String?
-  user          User?       @relation(fields: [userId], references: [id])
+  id                      String      @id @default(uuid())
+  userId                  String?
+  user                    User?       @relation(fields: [userId], references: [id])
   
-  total         Float       // Changed to Float for SQLite
-  status        String      @default("PENDING") // MySQL/Postgres Enums -> String
+  total                   Float       // Changed to Float for SQLite
+  status                  String      @default("PENDING") // PENDING, CONFIRMED, PROCESSING, ON_THE_WAY, DELIVERED, CANCELLED
+  estimatedDeliveryDate   DateTime?   // Estimated delivery date for tracking
   
   // JSON for shipping address
-  address       String
+  address                 String
   
-  items         OrderItem[]
+  items                   OrderItem[]
   
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
 }
 
 model OrderItem {

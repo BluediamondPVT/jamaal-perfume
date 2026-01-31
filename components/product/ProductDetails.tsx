@@ -6,11 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useCartStore } from "@/store/cart-store";
 import { Minus, Plus, Star } from "lucide-react";
-import { toast } from "sonner"; // Assuming I should install sonner for toasts, or just use basic alert for now. 
-// I'll stick to a simple alert or console log if sonner isn't installed. 
-// Ah, shadcn usually installs sonner but I only installed base components. 
-// I'll assume no toast library for now to keep it simple or use window.alert.
-// Better: standard shadcn `use-toast` isn't installed. I'll just use console.log or simple alert.
+import { toast } from "sonner";
+import WishlistButton from "./WishlistButton";
 
 interface ProductDetailsProps {
     product: {
@@ -37,6 +34,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     const [selectedSize, setSelectedSize] = useState(variants?.sizes?.[0] || null);
 
     const handleAddToCart = () => {
+        if (quantity > product.stock) {
+            toast.error(`Only ${product.stock} items available in stock`);
+            return;
+        }
         addItem({
             id: product.id,
             name: product.name,
@@ -45,7 +46,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             quantity: quantity,
             variant: selectedSize
         });
-        alert("Added to cart!"); // Simple feedback
+        toast.success(`${product.name} added to cart! 🛍️`, {
+            description: `Quantity: ${quantity}`,
+        });
     };
 
     const increment = () => setQuantity(q => q + 1);
@@ -151,6 +154,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                     <Button size="lg" className="flex-1 h-auto py-3 text-lg uppercase tracking-wide" onClick={handleAddToCart}>
                         Add to shopping bag
                     </Button>
+
+                    <WishlistButton productId={product.id} />
                 </div>
 
                 {/* Accordion */}

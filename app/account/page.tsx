@@ -27,8 +27,9 @@ async function getUserOrders(clerkId: string) {
 
 const statusColors: Record<string, string> = {
     PENDING: "bg-yellow-100 text-yellow-800",
-    PROCESSING: "bg-blue-100 text-blue-800",
-    SHIPPED: "bg-purple-100 text-purple-800",
+    CONFIRMED: "bg-blue-100 text-blue-800",
+    PROCESSING: "bg-purple-100 text-purple-800",
+    ON_THE_WAY: "bg-indigo-100 text-indigo-800",
     DELIVERED: "bg-green-100 text-green-800",
     CANCELLED: "bg-red-100 text-red-800",
 };
@@ -61,7 +62,7 @@ export default async function AccountPage() {
                     ) : (
                         <div className="space-y-4">
                             {orders.map((order) => (
-                                <div key={order.id} className="bg-white border rounded-xl p-6">
+                                <div key={order.id} className="bg-white border rounded-xl p-6 hover:shadow-lg transition">
                                     <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                                         <div>
                                             <p className="font-mono text-sm text-muted-foreground">Order #{order.id.slice(0, 8)}</p>
@@ -78,6 +79,19 @@ export default async function AccountPage() {
                                         </Badge>
                                     </div>
 
+                                    {order.estimatedDeliveryDate && (
+                                        <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                                            <p className="text-xs text-muted-foreground">Estimated Delivery</p>
+                                            <p className="text-sm font-semibold text-primary">
+                                                {new Date(order.estimatedDeliveryDate).toLocaleDateString("en-IN", {
+                                                    day: "numeric",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="space-y-2 mb-4">
                                         {order.items.map((item) => (
                                             <div key={item.id} className="flex justify-between text-sm">
@@ -88,8 +102,13 @@ export default async function AccountPage() {
                                     </div>
 
                                     <div className="flex justify-between items-center pt-4 border-t">
-                                        <span className="font-semibold">Total</span>
-                                        <span className="font-bold text-lg">₹{Number(order.total).toLocaleString()}</span>
+                                        <div>
+                                            <span className="font-semibold">Total</span>
+                                            <p className="font-bold text-lg">₹{Number(order.total).toLocaleString()}</p>
+                                        </div>
+                                        <Link href={`/track-order?orderId=${order.id}`} className="text-primary hover:underline text-sm font-medium">
+                                            View Tracking →
+                                        </Link>
                                     </div>
                                 </div>
                             ))}

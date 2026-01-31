@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Upload, ImageIcon } from "lucide-react";
+import { toast } from "sonner";
 
 type Category = {
   id: string;
@@ -108,13 +109,15 @@ export default function NewProductPage() {
       });
 
       if (res.ok) {
+        toast.success('Product created successfully! 🎉');
         router.push("/admin/products");
         router.refresh();
       } else {
-        alert("Failed to create product");
+        const errorData = await res.json();
+        toast.error(errorData.error || 'Failed to create product');
       }
     } catch (error) {
-      alert("Something went wrong");
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }

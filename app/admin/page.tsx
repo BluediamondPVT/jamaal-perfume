@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 const prisma = new PrismaClient();
 
 async function getStats() {
-    const [productsCount, ordersCount, totalRevenue, categoriesCount] = await Promise.all([
+    const [productsCount, ordersCount, totalRevenue, categoriesCount, customersCount] = await Promise.all([
         prisma.product.count(),
         prisma.order.count(),
         prisma.order.aggregate({
             _sum: { total: true },
         }),
         prisma.category.count(),
+        prisma.user.count({ where: { role: "USER" } }),
     ]);
 
     return {
@@ -21,6 +22,7 @@ async function getStats() {
         orders: ordersCount,
         revenue: totalRevenue._sum?.total || 0,
         categories: categoriesCount,
+        customers: customersCount,
     };
 }
 
@@ -62,6 +64,14 @@ export default async function AdminDashboard() {
             href: "/admin/orders"
         },
         {
+            title: "Total Customers",
+            value: stats.customers.toString(),
+            icon: Users,
+            color: "text-red-600",
+            bg: "bg-red-100",
+            href: "/admin/customers"
+        },
+        {
             title: "Categories",
             value: stats.categories.toString(),
             icon: Tag,
@@ -78,7 +88,7 @@ export default async function AdminDashboard() {
             </div>
 
             {/* 🔥 STATS CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 {cards.map((card) => (
                     <Link key={card.title} href={card.href}>
                         <Card className="hover:shadow-lg transition-all cursor-pointer border-0 bg-gradient-to-br hover:scale-[1.02]">
@@ -148,22 +158,7 @@ export default async function AdminDashboard() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        <Link href="/admin/products/new" className="block p-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-lg transition-all cursor-pointer">
-                            ➕ Add New Product
-                        </Link>
-                        <Link href="/admin/categories/new" className="block p-4 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-lg transition-all cursor-pointer">
-                            🏷️ Add New Category
-                        </Link>
-                        <Link href="/admin/orders" className="block p-4 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-lg transition-all cursor-pointer">
-                            📦 View Orders
-                        </Link>
-                    </CardContent>
-                </Card>
+               
             </div>
         </div>
     );

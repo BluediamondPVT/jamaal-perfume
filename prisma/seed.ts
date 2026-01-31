@@ -39,7 +39,7 @@ async function main() {
             price: 1499.00,
             stock: 50,
             categoryId: attarCat.id,
-            images: JSON.stringify(['https://images.unsplash.com/photo-1594035910387-fea4779426e9?q=80&w=800&auto=format&fit=crop']),
+            images: JSON.stringify(['https://images.unsplash.com/photo-1458538977777-0549b2370168?q=80&w=874&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D']),
             isFeatured: true,
             variants: JSON.stringify({ sizes: ['6ml', '12ml'] }),
         },

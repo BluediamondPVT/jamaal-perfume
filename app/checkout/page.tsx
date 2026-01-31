@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useUser } from "@clerk/nextjs";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 declare global {
     interface Window {
@@ -59,16 +60,18 @@ export default function CheckoutPage() {
     const handlePayment = async () => {
         // Validate form
         if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.pincode) {
-            alert("Please fill in all fields");
+            toast.error("Please fill in all fields");
             return;
         }
 
         setLoading(true);
+        const toastId = toast.loading("Processing payment...");
 
         try {
             const res = await loadRazorpay();
             if (!res) {
-                alert("Razorpay SDK failed to load");
+                toast.error("Razorpay SDK failed to load");
+                toast.dismiss(toastId);
                 setLoading(false);
                 return;
             }
@@ -88,7 +91,7 @@ export default function CheckoutPage() {
 
             if (!orderData.orderId) {
                 // Fallback for demo mode without actual Razorpay keys
-                alert("Demo Mode: Order placed successfully!");
+                toast.success("Demo Mode: Order placed successfully! 🎉");
                 clearCart();
                 router.push("/order-confirmation?demo=true");
                 return;
@@ -102,6 +105,7 @@ export default function CheckoutPage() {
                 description: "Luxury Fragrance Order",
                 order_id: orderData.orderId,
                 handler: async function (response: any) {
+                    toast.dismiss(toastId);
                     // Verify payment
                     const verifyRes = await fetch("/api/verify-payment", {
                         method: "POST",
@@ -114,10 +118,11 @@ export default function CheckoutPage() {
                     });
 
                     if (verifyRes.ok) {
+                        toast.success("Payment successful! 💳 Order confirmed!");
                         clearCart();
                         router.push(`/order-confirmation?orderId=${response.razorpay_order_id}`);
                     } else {
-                        alert("Payment verification failed");
+                        toast.error("Payment verification failed");
                     }
                 },
                 prefill: {
@@ -131,10 +136,11 @@ export default function CheckoutPage() {
             };
 
             const paymentObject = new window.Razorpay(options);
+            toast.dismiss(toastId);
             paymentObject.open();
         } catch (error) {
             console.error("Payment error:", error);
-            alert("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }

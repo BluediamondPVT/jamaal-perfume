@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 const prisma = new PrismaClient();
 
@@ -32,6 +33,13 @@ function getSortOrder(sort: SortOption) {
         default:
             return { isFeatured: 'desc' as const };
     }
+}
+
+// 🔥 FETCH ALL CATEGORIES FOR SIDEBAR
+async function getAllCategories() {
+    return await prisma.category.findMany({
+        orderBy: { name: 'asc' }
+    });
 }
 
 async function getProducts(slug: string, searchParams: SearchParams) {
@@ -84,6 +92,7 @@ export default async function CollectionPage(props: PageProps) {
     const { slug } = await props.params;
     const searchParams = await props.searchParams;
     const data = await getProducts(slug, searchParams);
+    const categories = await getAllCategories();
 
     if (!data) return notFound();
 
@@ -91,6 +100,7 @@ export default async function CollectionPage(props: PageProps) {
 
     return (
         <div className="container mx-auto px-4 py-16">
+            {/* HEADER */}
             <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
                 <h1 className="text-4xl md:text-5xl font-display font-bold">{title}</h1>
                 {description && (
@@ -98,28 +108,71 @@ export default async function CollectionPage(props: PageProps) {
                 )}
             </div>
 
-            <ProductFilters maxPrice={5000} />
+            {/* MAIN LAYOUT WITH SIDEBAR */}
+            <div className="flex gap-8 lg:gap-12">
+                {/* 🔥 SIDEBAR - Categories */}
+                <aside className="hidden lg:block w-64 flex-shrink-0">
+                    <div className="sticky top-4 space-y-6">
+                        <div>
+                            <h3 className="font-display font-bold text-lg mb-4">Categories</h3>
+                            <nav className="space-y-2">
+                                {/* All Products Link */}
+                                <Link
+                                    href="/collections/all"
+                                    className={`block px-4 py-2 rounded-lg transition-colors ${
+                                        slug === 'all'
+                                            ? 'bg-primary text-primary-foreground font-medium'
+                                            : 'text-foreground hover:bg-secondary/50'
+                                    }`}
+                                >
+                                    All Products
+                                </Link>
 
-            {products.length === 0 ? (
-                <div className="text-center py-20">
-                    <p className="text-lg text-muted-foreground">No products found matching your criteria.</p>
-                </div>
-            ) : (
-                <>
-                    <p className="text-sm text-muted-foreground mb-6">{products.length} products</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-                        {products.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                product={{
-                                    ...product,
-                                    price: Number(product.price)
-                                }}
-                            />
-                        ))}
+                                {/* Category Links */}
+                                {categories.map((category) => (
+                                    <Link
+                                        key={category.id}
+                                        href={`/collections/${category.slug}`}
+                                        className={`block px-4 py-2 rounded-lg transition-colors ${
+                                            slug === category.slug
+                                                ? 'bg-primary text-primary-foreground font-medium'
+                                                : 'text-foreground hover:bg-secondary/50'
+                                        }`}
+                                    >
+                                        {category.name}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
                     </div>
-                </>
-            )}
+                </aside>
+
+                {/* MAIN CONTENT */}
+                <div className="flex-1 min-w-0">
+                    <ProductFilters maxPrice={5000} />
+
+                    {products.length === 0 ? (
+                        <div className="text-center py-20">
+                            <p className="text-lg text-muted-foreground">No products found matching your criteria.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="text-sm text-muted-foreground mb-6">{products.length} products</p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+                                {products.map((product) => (
+                                    <ProductCard
+                                        key={product.id}
+                                        product={{
+                                            ...product,
+                                            price: Number(product.price)
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

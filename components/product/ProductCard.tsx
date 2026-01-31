@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 interface ProductCardProps {
     product: {
@@ -38,7 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     />
                     {/* Quick Add Overlay */}
                     <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <Link href={`/product/${product.slug}`}>
+                        <Link href={`/product/${product.slug}`} className="block">
                             <Button className="w-full bg-white text-black hover:bg-white/90 shadow-md">
                                 Quick View
                             </Button>
@@ -57,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Link>
                 </div>
 
-                <div className="mt-2 flex items-center justify-between">
+                <div className="mt-2">
                     <div className="flex items-center gap-2">
                         {product.discount && product.discount > 0 ? (
                             <>
@@ -72,9 +71,6 @@ export function ProductCard({ product }: ProductCardProps) {
                             <p className="font-body font-medium">₹{product.price.toLocaleString()}</p>
                         )}
                     </div>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full border border-input hover:bg-primary hover:text-primary-foreground transition-colors">
-                        <Plus className="h-4 w-4" />
-                    </Button>
                 </div>
             </CardContent>
         </Card>

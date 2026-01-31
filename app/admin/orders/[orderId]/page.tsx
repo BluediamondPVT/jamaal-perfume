@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -60,14 +60,15 @@ interface Order {
 }
 
 interface AdminOrderDetailPageProps {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 export default function AdminOrderDetailPage({
   params,
 }: AdminOrderDetailPageProps) {
+  const { orderId } = use(params);
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -80,7 +81,7 @@ export default function AdminOrderDetailPage({
 
   if (!orderFetched) {
     setOrderFetched(true);
-    fetch(`/api/orders/${params.orderId}`)
+    fetch(`/api/orders/${orderId}`)
       .then((res) => res.json())
       .then((data) => {
         setOrder(data);

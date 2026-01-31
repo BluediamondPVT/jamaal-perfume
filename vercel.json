@@ -36,6 +36,5 @@
       "description": "Supabase service role key for backend operations",
       "required": false
     }
-  },
-  "buildOutputDirectory": ".next"
+  }
 }

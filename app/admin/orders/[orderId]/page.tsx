@@ -104,7 +104,7 @@ export default function AdminOrderDetailPage({
       setUpdating(true);
       setError('');
 
-      const response = await fetch(`/api/orders/${params.orderId}`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

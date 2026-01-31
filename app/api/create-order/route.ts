@@ -44,10 +44,13 @@ export async function POST(req: NextRequest) {
                 receipt: order.id,
             });
 
-            // Update order with Razorpay order ID
+            // Update order with Razorpay order ID and status
             await prisma.order.update({
                 where: { id: order.id },
-                data: { status: "PROCESSING" },
+                data: { 
+                    status: "PROCESSING",
+                    razorpayOrderId: razorpayOrder.id,
+                },
             });
 
             return NextResponse.json({

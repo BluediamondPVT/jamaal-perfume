@@ -79,14 +79,21 @@ export async function GET(
   { params }: { params: { orderId: string } }
 ) {
   try {
-    const order = await prisma.order.findUnique({
-      where: { id: params.orderId },
+    // Try to find order by both internal ID and Razorpay order ID
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [
+          { id: params.orderId },
+          { razorpayOrderId: params.orderId }
+        ]
+      },
       include: {
         items: {
           include: {
             product: true,
           },
         },
+        user: true,
       },
     });
 

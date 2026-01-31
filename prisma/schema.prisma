@@ -61,6 +61,7 @@ model Product {
 
 model Order {
   id                      String      @id @default(uuid())
+  razorpayOrderId         String?     // Razorpay order ID for payment tracking
   userId                  String?
   user                    User?       @relation(fields: [userId], references: [id])
   

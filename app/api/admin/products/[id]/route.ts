@@ -14,12 +14,9 @@ const supabase = createClient(
 // Upload image to Supabase Storage
 async function uploadImageToSupabase(file: File): Promise<string> {
   try {
-    // If file is too large or Supabase not configured, store as data URL
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.warn('⚠️ Supabase not configured, storing image as data URL');
-      const buffer = await file.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString('base64');
-      return `data:${file.type};base64,${base64}`;
+      console.error('❌ Supabase not configured');
+      throw new Error('Supabase storage not configured');
     }
 
     const fileExt = file.name.split('.').pop();
@@ -28,35 +25,26 @@ async function uploadImageToSupabase(file: File): Promise<string> {
 
     const fileBuffer = await file.arrayBuffer();
     
-    try {
-      const { data, error } = await supabase.storage
-        .from('images')
-        .upload(filePath, fileBuffer, {
-          contentType: file.type,
-        });
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(filePath, fileBuffer, {
+        contentType: file.type,
+      });
 
-      if (error) {
-        console.warn('⚠️ Supabase storage unavailable, storing as data URL:', error.message);
-        // Fallback: store as data URL if bucket doesn't exist
-        const base64 = Buffer.from(fileBuffer).toString('base64');
-        return `data:${file.type};base64,${base64}`;
-      }
-
-      // Return the public URL
-      const { data: publicUrlData } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
-
-      return publicUrlData.publicUrl;
-    } catch (storageError) {
-      console.warn('⚠️ Supabase storage error, falling back to data URL');
-      // Fallback: convert to data URL
-      const base64 = Buffer.from(fileBuffer).toString('base64');
-      return `data:${file.type};base64,${base64}`;
+    if (error) {
+      console.error('❌ Supabase upload error:', error.message);
+      throw new Error(`Upload failed: ${error.message}`);
     }
+
+    // Return the public URL
+    const { data: publicUrlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return publicUrlData.publicUrl;
   } catch (error) {
     console.error('Image upload failed:', error);
-    throw new Error('Failed to upload image');
+    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -128,7 +116,7 @@ export async function PATCH(
     const price = parseFloat(formData.get("price") as string);
     const discount = parseFloat(formData.get("discount") as string) || 0;
     const stock = parseInt(formData.get("stock") as string) || 0;
-    const categoryId = formData.get("categoryId") as string;
+    const categoryIdValue = formData.get("categoryId") as string;
     const isFeatured = formData.get("isFeatured") === "true";
     const isBestSeller = formData.get("isBestSeller") === "true";
     const existingImagesStr = formData.get("existingImages") as string;
@@ -150,18 +138,21 @@ export async function PATCH(
         try {
           const uploadedUrl = await uploadImageToSupabase(file);
           imageUrls.push(uploadedUrl);
+          console.log('✅ Image uploaded:', uploadedUrl);
         } catch (uploadError) {
           console.error('Failed to upload individual image:', uploadError);
-          // Continue with other images instead of failing completely
-          continue;
+          return NextResponse.json(
+            { error: `Image upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}` },
+            { status: 500 }
+          );
         }
       }
     }
 
     // Validate required fields
-    if (!name || !slug || !categoryId || !price) {
+    if (!name || !slug || !price) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: name, slug, price" },
         { status: 400 }
       );
     }
@@ -181,22 +172,31 @@ export async function PATCH(
       );
     }
 
+    // Build update data - only include categoryId if it has a value
+    const updateData: any = {
+      name,
+      slug,
+      description,
+      price,
+      discount,
+      stock,
+      isFeatured,
+      isBestSeller,
+      images: JSON.stringify(imageUrls),
+    };
+
+    // Only add categoryId if it's not empty
+    if (categoryIdValue) {
+      updateData.categoryId = categoryIdValue;
+    }
+
     const product = await prisma.product.update({
       where: { id: productId },
-      data: {
-        name,
-        slug,
-        description,
-        price,
-        discount,
-        stock,
-        categoryId,
-        isFeatured,
-        isBestSeller,
-        images: JSON.stringify(imageUrls),
-      },
+      data: updateData,
+      include: { category: true },
     });
 
+    console.log('✅ Product updated:', product.name);
     return NextResponse.json(product);
   } catch (error) {
     console.error("Product update error:", error);
@@ -235,11 +235,35 @@ export async function DELETE(
       );
     }
 
+    // Fetch product to get images before deletion
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete from database
     await prisma.product.delete({
       where: { id: productId },
     });
 
-    return NextResponse.json({ success: true });
+    // Optional: Delete images from Supabase
+    // Note: You can implement this if needed
+    // const imageUrls = JSON.parse(product.images);
+    // for (const imageUrl of imageUrls) {
+    //   // Extract file path from URL and delete
+    // }
+
+    console.log('✅ Product deleted:', product.name);
+    return NextResponse.json({ 
+      success: true,
+      message: "Product deleted successfully"
+    });
   } catch (error) {
     console.error("Product delete error:", error);
     return NextResponse.json(
